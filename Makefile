@@ -21,7 +21,7 @@ watch:
 	@while true ; do \
 		NAME=$$(inotifywait \
 			-e create,modify \
-			--include '.*\.c' \
+			--include '.*\.(c|h)' \
 			--format '%w%f' \
 			"$(SRCDIR)"); \
 		export NAME=$$(basename "$${NAME%%.c}"); \
