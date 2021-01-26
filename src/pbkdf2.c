@@ -1,4 +1,4 @@
-#include "matrix_session_extract.h";
+#include "matrix_session_extract.h"
 
 // Extract AES-256-CTR key with embedded python
 const unsigned char *calc_aes_key(const char *passphrase, const size_t rounds,
