@@ -17,3 +17,19 @@ void print_uint8(const u_int8_t *bytes, const size_t len) {
     printf("%" PRIu8, bytes[i]);
   }
 }
+
+void print_session(ParsedSession *session) {
+  printf("salt: ");
+  print_bytes(session->salt, sizeof(session->salt));
+  printf("\n");
+  printf("vector: ");
+  print_bytes(session->vector, sizeof(session->vector));
+  printf("\n");
+  printf("rounds: %u\n", session->rounds);
+  printf("rest: ");
+  print_bytes(session->rest, session->rest_size);
+  printf("\n");
+  printf("hmac_sha256: ");
+  print_bytes(session->hmac_sha256, sizeof(session->hmac_sha256));
+  printf("\n");
+}

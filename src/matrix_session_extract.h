@@ -24,3 +24,4 @@ const unsigned char *calc_aes_key(const char *passphrase, const size_t rounds,
 void print_bytes(const char *bytes, const size_t len);
 void print_hex_bytes(const char *bytes, const size_t len);
 void print_uint8(const u_int8_t *bytes, const size_t len);
+void print_session(ParsedSession *session);
