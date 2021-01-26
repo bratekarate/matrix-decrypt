@@ -8,7 +8,7 @@ DEPS=$(SRCDIR)/$(NAME).h
 OUTDIR=out
 OBJ_LIB=parse.o util.o pbkdf2.o
 OBJ_MAIN=$(addprefix $(OUTDIR)/, $(OBJ_LIB) main.o)
-OBJ_TEST=$(addprefix $(OUTDIR)/, $(OBJ_LIB) parse_test.o)
+OBJ_TEST=$(addprefix $(OUTDIR)/, $(OBJ_LIB) tests.o)
 
 $(OUTDIR)/%.o: $(SRCDIR)/%.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
@@ -20,8 +20,8 @@ $(OUTDIR)/$(NAME): $(OBJ_MAIN)
 $(OUTDIR)/%.o: $(TESTDIR)/%.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-test: $(OUTDIR)/tests
-$(OUTDIR)/tests: $(OBJ_TEST) $(OUTDIR)/parse_test.o
+test: $(OUTDIR)/$(NAME)_tests
+$(OUTDIR)/$(NAME)_tests: $(OBJ_TEST) $(OUTDIR)/tests.o
 	$(CC) $(CFLAGS) -o $@ $^ $(CLIBS)
 
 watch:
@@ -35,11 +35,8 @@ watch:
 			--include '.*\.(c|h)' \
 			--format '%w%f' \
 			"$(SRCDIR)" "$(TESTDIR)"); \
-		if [ "$$(dirname "$$NAME")" = "$(SRCDIR)" ]; then \
-			($(MAKE)); \
-		else \
-			($(MAKE) test); \
-		fi; \
+		($(MAKE)); \
+		($(MAKE) test); \
 	done
 
 

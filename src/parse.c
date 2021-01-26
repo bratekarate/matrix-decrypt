@@ -1,18 +1,18 @@
 #include "./matrix_session_extract.h"
 
-ParsedSession *session_parse(FILE *fp) {
-  const char format = fgetc(fp);
+ParsedSession *session_parse_alloc(FILE *fp) {
+  ParsedSession *res = malloc(sizeof(ParsedSession));
+
+  res->format = fgetc(fp);
 
   size_t i;
-  char salt[SALT_LEN + 1];
-  for (i = 0; i < SALT_LEN; i++) {
-    salt[i] = fgetc(fp);
+  for (i = 0; i < SALT_LEN - 1; i++) {
+    res->salt[i] = fgetc(fp);
   }
-  salt[i] = '\0'; // \0 character necessary for python object conversion
+  res->salt[i] = '\0'; // \0 character necessary for python object conversion
 
-  char vec[VECTOR_LEN];
   for (i = 0; i < VECTOR_LEN; i++) {
-    vec[i] = fgetc(fp);
+    res->vector[i] = fgetc(fp);
   }
 
   u_int8_t rnd_arr[ROUNDS_LEN];
@@ -20,12 +20,15 @@ ParsedSession *session_parse(FILE *fp) {
     rnd_arr[i] = fgetc(fp);
   }
 
+  res->rounds =
+      (rnd_arr[0] << 24) + (rnd_arr[1] << 16) + (rnd_arr[2] << 8) + rnd_arr[3];
+
   i = 0;
-  char *rest = malloc(0);
+  res->rest = malloc(0);
   char buf;
   while (!feof(fp)) {
-    rest = realloc(rest, i + 1);
-    rest[i] = fgetc(fp);
+    res->rest = realloc(res->rest, i + 1);
+    res->rest[i] = fgetc(fp);
     i++; // TODO: why is i after loop the size of rest bytes + 1?
   }
 
@@ -38,23 +41,12 @@ ParsedSession *session_parse(FILE *fp) {
 
   i--; // see TODO above
 
-  char hmac_sha256[HMAC_SHA256_LEN];
   size_t j;
   for (j = 0; j < HMAC_SHA256_LEN; j++) {
-    hmac_sha256[HMAC_SHA256_LEN - 1 - j] = rest[i - 1 - j];
+    res->hmac_sha256[HMAC_SHA256_LEN - 1 - j] = res->rest[i - 1 - j];
   }
 
-  i -= j;
-
-  const uint32_t rounds =
-      (rnd_arr[0] << 24) + (rnd_arr[1] << 16) + (rnd_arr[2] << 8) + rnd_arr[3];
-
-  ParsedSession *res = malloc(sizeof(ParsedSession));
-  memcpy(res->salt, salt, sizeof(res->salt));
-  memcpy(res->vector, vec, sizeof(res->vector));
-  res->rounds = rounds;
-  memcpy(res->hmac_sha256, hmac_sha256, sizeof(res->hmac_sha256));
-  memcpy(res->rest, rest, i);
+  res->rest_size = i - j;
 
   return res;
 }
