@@ -1,0 +1,6 @@
+clang
+-I/usr/include/python3.9
+-lpython3
+-lnettle
+-lolm
+-lssl -lcrypto
