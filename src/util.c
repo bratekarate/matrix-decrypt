@@ -32,9 +32,9 @@ void print_session(ParsedSession *session) {
   print_bytes_int(session->vector, sizeof(session->vector));
   printf("\n");
   printf("rounds: %u\n", session->rounds);
-  // printf("rest: %zu bytes", session->rest_size);
-  printf("rest: ");
-  print_bytes_int(session->rest, session->rest_size);
+  printf("rest: %zu bytes", session->rest_size);
+  // printf("rest: ");
+  // print_bytes_int(session->rest, session->rest_size);
   printf("\n");
   printf("hmac_sha256: ");
   print_bytes_int(session->hmac_sha256, sizeof(session->hmac_sha256));
