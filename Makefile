@@ -11,6 +11,7 @@ OBJ_MAIN=$(addprefix $(OUTDIR)/, $(OBJ_LIB) main.o)
 OBJ_TEST=$(addprefix $(OUTDIR)/, $(OBJ_LIB) tests.o)
 
 $(OUTDIR)/%.o: $(SRCDIR)/%.c $(DEPS)
+	@[ -d "$(@D)" ] || mkdir -p "$(@D)"
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 main: $(OUTDIR)/$(NAME)
