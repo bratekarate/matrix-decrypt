@@ -24,6 +24,7 @@ void write_to_file(char *filepath, char *rest, size_t rest_size);
 const unsigned char *calc_aes_key(const char *passphrase, const size_t rounds,
                                   const char *salt);
 void print_bytes(const char *bytes, const size_t len);
+void print_bytes_int(const char *bytes, const size_t len);
 void print_hex_bytes(const char *bytes, const size_t len);
 void print_uint8(const u_int8_t *bytes, const size_t len);
 void print_session(ParsedSession *session);

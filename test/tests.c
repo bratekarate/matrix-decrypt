@@ -1,5 +1,11 @@
 #include "../src/matrix_session_extract.h"
 
+#define REST_SIZE (100000)
+#define ALPHA_MIN (-122)
+#define ALPHA_MAX (122)
+#define TOTAL_SIZE                                                             \
+  (REST_SIZE + SALT_LEN - 1 + VECTOR_LEN + ROUNDS_LEN + HMAC_SHA256_LEN)
+
 void test_parse();
 void test_print_to_file();
 void test_calc_aes_key();
@@ -10,15 +16,41 @@ int main() {
 }
 
 void test_parse() {
-  ParsedSession *session = session_parse_alloc(stdin);
-  print_session(session);
+  char *str = malloc(TOTAL_SIZE * sizeof(char));
+  char *strptr = str;
 
-  char salt[SALT_LEN] = {
-      -23, 90, 59, 0, -58, 33, -22, 43, 79, -38, 41, -38, 31, 33, -73, -90, 0,
+  char salt[SALT_LEN - 1] = {
+      -23, 90, 59, 0, -58, 33, -22, 43, 79, -38, 41, -38, 31, 33, -73, -90,
   };
+
+  memcpy(strptr, &salt, SALT_LEN - 1);
+  strptr += SALT_LEN - 1;
+
   char vector[VECTOR_LEN] = {
       -27, 43, -9, 83, 2, -114, 103, 83, -48, -105, 95, -17, -50, 56, 61,
   };
+
+  memcpy(strptr, &vector, VECTOR_LEN);
+  strptr += VECTOR_LEN;
+
+  // memcpy(str, &salt, SALT_LEN);
+
+  uint32_t rounds = 500000;
+  uint8_t rounds_arr[ROUNDS_LEN];
+  {
+    int32_t rounds_tmp = rounds;
+    rounds_arr[0] = rounds_tmp >> 24;
+    rounds_arr[1] = rounds_tmp >> 16;
+    rounds_arr[2] = rounds_tmp >> 8;
+    rounds_arr[3] = rounds_tmp;
+  }
+
+  memcpy(strptr, &rounds_arr, ROUNDS_LEN);
+  strptr += ROUNDS_LEN;
+
+  for (size_t i = 0; i < REST_SIZE; i++) {
+    (*strptr++) = -26;
+  }
 
   char hmac_sha[HMAC_SHA256_LEN] = {
       -7,  -5,  -43, -81, -11, 54,  -32, -98, 127, 14,   -24,
@@ -26,9 +58,21 @@ void test_parse() {
       69,  -81, 49,  -98, -98, -44, 107, -70, 24,  -50,
   };
 
-  uint32_t rounds = 500000;
+  memcpy(strptr, &hmac_sha, HMAC_SHA256_LEN);
+  strptr += HMAC_SHA256_LEN;
 
   // TODO: asserts (also rest)
+
+  *++strptr = 0;
+
+  print_bytes_int(str, TOTAL_SIZE);
+
+  for(size_t i = 0; i < TOTAL_SIZE; i++) {
+      fputc(str[i], stdin);
+  }
+
+  ParsedSession *session = session_parse_alloc(stdin);
+  print_session(session);
 
   free(session->rest);
   free(session);
