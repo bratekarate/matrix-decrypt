@@ -3,8 +3,9 @@
 #define REST_SIZE (100000)
 #define ALPHA_MIN (-122)
 #define ALPHA_MAX (122)
+#define TMP_PATH ("./tmp.txt")
 #define TOTAL_SIZE                                                             \
-  (REST_SIZE + SALT_LEN - 1 + VECTOR_LEN + ROUNDS_LEN + HMAC_SHA256_LEN)
+  (1 + REST_SIZE + SALT_LEN - 1 + VECTOR_LEN + ROUNDS_LEN + HMAC_SHA256_LEN)
 
 void test_parse();
 void test_print_to_file();
@@ -19,6 +20,7 @@ void test_parse() {
   char *str = malloc(TOTAL_SIZE * sizeof(char));
   char *strptr = str;
 
+  *strptr++ = 1;
   char salt[SALT_LEN - 1] = {
       -23, 90, 59, 0, -58, 33, -22, 43, 79, -38, 41, -38, 31, 33, -73, -90,
   };
@@ -32,8 +34,6 @@ void test_parse() {
 
   memcpy(strptr, &vector, VECTOR_LEN);
   strptr += VECTOR_LEN;
-
-  // memcpy(str, &salt, SALT_LEN);
 
   uint32_t rounds = 500000;
   uint8_t rounds_arr[ROUNDS_LEN];
@@ -63,23 +63,26 @@ void test_parse() {
 
   // TODO: asserts (also rest)
 
-  *++strptr = 0;
+  // *++strptr = 0;
+  // printf("%zu\n", strptr - str);
 
-  print_bytes_int(str, TOTAL_SIZE);
+  // print_bytes_int(str, TOTAL_SIZE);
 
-  FILE *fp = fopen("./tmp.txt", "w");
+  FILE *fp = fopen(TMP_PATH, "w");
 
-  for(size_t i = 0; i < TOTAL_SIZE; i++) {
-      fputc(str[i], fp);
+  for (size_t i = 0; i < TOTAL_SIZE; i++) {
+    fputc(str[i], fp);
   }
 
   printf("%s\n", "written");
+  printf("%zu\n", strptr - str);
+
+  fclose(fp);
+
+  fp = fopen(TMP_PATH, "r");
 
   ParsedSession *session = session_parse_alloc(fp);
   print_session(session);
-
-  fclose(fp);
-  fp = fopen("./tmp.txt", "r");
 
   free(session->rest);
   free(session);
