@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <resolv.h>
 
 #define SALT_LEN (17)
 #define VECTOR_LEN (16)

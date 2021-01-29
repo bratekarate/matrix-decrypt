@@ -19,10 +19,8 @@ typedef struct {
   const char *name;
 } func_pointer_t;
 
-func_pointer_t func_array[] = {
-    FUNC_DEF(test_parse)
-    FUNC_DEF(test_calc_aes_key)
-};
+func_pointer_t func_array[] = {FUNC_DEF(test_parse)
+                                   FUNC_DEF(test_calc_aes_key)};
 
 int main() {
   for (size_t i = 0; i < FUNC_ARRAY_SIZE; i++) {
@@ -81,17 +79,23 @@ void test_parse() {
 
   assert(strptr - str == TOTAL_SIZE);
 
+  int enc_size = ((4 * TOTAL_SIZE / 3) + 3) & ~3;
+  char *encoded = malloc(enc_size);
+  b64_ntop((const unsigned char *)str, TOTAL_SIZE, encoded, enc_size);
+
   FILE *fp = fopen(TMP_PATH, "w");
 
-  for (size_t i = 0; i < TOTAL_SIZE; i++) {
-    fputc(str[i], fp);
+  fputs("-----BEGIN MEGOLM SESSION DATA-----\n", fp);
+  for (size_t i = 0; i < enc_size; i++) {
+    fputc(encoded[i], fp);
   }
+  fputs("\n-----END MEGOLM SESSION DATA-----\n", fp);
 
   fclose(fp);
 
   fp = fopen(TMP_PATH, "r");
   ParsedSession *session = session_parse_alloc(fp);
-  remove(TMP_PATH);
+  // remove(TMP_PATH);
 
   assert(!memcmp(&session->format, &format, sizeof(char)));
   assert(!memcmp(session->salt, salt, SALT_LEN - 1 * sizeof(char)));
