@@ -1,19 +1,35 @@
 #include "../src/matrix_session_extract.h"
 
-#define REST_SIZE (100000)
-#define ALPHA_MIN (-122)
-#define ALPHA_MAX (122)
 #define TMP_PATH ("/tmp/matrix_test_out")
+#define REST_SIZE (100000)
 #define TOTAL_SIZE                                                             \
   (1 + REST_SIZE + SALT_LEN - 1 + VECTOR_LEN + ROUNDS_LEN + HMAC_SHA256_LEN)
+#define PASSPHRASE ("testus")
+#define ROUNDS (500000)
+
+#define FUNC_DEF(func) {func, #func},
+#define FUNC_ARRAY_SIZE (sizeof(func_array) / sizeof(func_pointer_t))
 
 void test_parse();
 void test_print_to_file();
 void test_calc_aes_key();
 
+typedef struct {
+  void (*func)(void);
+  const char *name;
+} func_pointer_t;
+
+func_pointer_t func_array[] = {
+    FUNC_DEF(test_parse)
+    FUNC_DEF(test_calc_aes_key)
+};
+
 int main() {
-  test_parse();
-  test_calc_aes_key();
+  for (size_t i = 0; i < FUNC_ARRAY_SIZE; i++) {
+    printf("Running test '%s'...\n", func_array[i].name);
+    func_array[i].func();
+    printf("Success.\n");
+  }
 }
 
 void test_parse() {
@@ -77,8 +93,6 @@ void test_parse() {
   ParsedSession *session = session_parse_alloc(fp);
   remove(TMP_PATH);
 
-  // print_session(session);
-
   assert(!memcmp(&session->format, &format, sizeof(char)));
   assert(!memcmp(session->salt, salt, SALT_LEN - 1 * sizeof(char)));
   assert(!memcmp(session->vector, vector, VECTOR_LEN * sizeof(char)));
@@ -96,11 +110,7 @@ void test_calc_aes_key() {
       -23, 90, 59, 0, -58, 33, -22, 43, 79, -38, 41, -38, 31, 33, -73, -90, 0,
   };
 
-  char *passphrase = "testus";
-
-  uint32_t rounds = 500000;
-
-  const unsigned char *aes_key = calc_aes_key(passphrase, rounds, salt);
+  const unsigned char *aes_key = calc_aes_key(PASSPHRASE, ROUNDS, salt);
 
   const unsigned char chrs[] = {
       115, 24,   -70,  -35, -59, -57, -112, -58,  -42,  1,   -53, 70,   -4,

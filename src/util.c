@@ -40,12 +40,3 @@ void print_session(ParsedSession *session) {
   print_bytes_int(session->hmac_sha256, sizeof(session->hmac_sha256));
   printf("\n");
 }
-
-void write_to_file(char *filepath, char *rest, size_t rest_size) {
-  FILE *fp = fopen(filepath, "w");
-  for (size_t k = 0; k < rest_size; k++) {
-    fputc(rest[k], fp);
-  }
-
-  fclose(fp);
-}
