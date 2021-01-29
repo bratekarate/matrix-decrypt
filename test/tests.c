@@ -3,7 +3,7 @@
 #define REST_SIZE (100000)
 #define ALPHA_MIN (-122)
 #define ALPHA_MAX (122)
-#define TMP_PATH ("./tmp.txt")
+#define TMP_PATH ("/tmp/matrix_test_out")
 #define TOTAL_SIZE                                                             \
   (1 + REST_SIZE + SALT_LEN - 1 + VECTOR_LEN + ROUNDS_LEN + HMAC_SHA256_LEN)
 
@@ -13,14 +13,15 @@ void test_calc_aes_key();
 
 int main() {
   test_parse();
-  // test_calc_aes_key();
+  test_calc_aes_key();
 }
 
 void test_parse() {
   char *str = malloc(TOTAL_SIZE * sizeof(char));
   char *strptr = str;
 
-  *strptr++ = 1;
+  char format = 1;
+  *strptr++ = format;
   char salt[SALT_LEN - 1] = {
       -23, 90, 59, 0, -58, 33, -22, 43, 79, -38, 41, -38, 31, 33, -73, -90,
   };
@@ -47,6 +48,7 @@ void test_parse() {
 
   memcpy(strptr, &rounds_arr, ROUNDS_LEN);
   strptr += ROUNDS_LEN;
+  char *restptr = strptr;
 
   for (size_t i = 0; i < REST_SIZE; i++) {
     (*strptr++) = -26;
@@ -61,12 +63,7 @@ void test_parse() {
   memcpy(strptr, &hmac_sha, HMAC_SHA256_LEN);
   strptr += HMAC_SHA256_LEN;
 
-  // TODO: asserts (also rest)
-
-  // *++strptr = 0;
-  // printf("%zu\n", strptr - str);
-
-  // print_bytes_int(str, TOTAL_SIZE);
+  assert(strptr - str == TOTAL_SIZE);
 
   FILE *fp = fopen(TMP_PATH, "w");
 
@@ -74,37 +71,43 @@ void test_parse() {
     fputc(str[i], fp);
   }
 
-  printf("%s\n", "written");
-  printf("%zu\n", strptr - str);
-
   fclose(fp);
 
   fp = fopen(TMP_PATH, "r");
-
   ParsedSession *session = session_parse_alloc(fp);
-  print_session(session);
+  remove(TMP_PATH);
+
+  // print_session(session);
+
+  assert(!memcmp(&session->format, &format, sizeof(char)));
+  assert(!memcmp(session->salt, salt, SALT_LEN - 1 * sizeof(char)));
+  assert(!memcmp(session->vector, vector, VECTOR_LEN * sizeof(char)));
+  assert(session->rounds == rounds);
+  assert(
+      !memcmp(session->hmac_sha256, hmac_sha, HMAC_SHA256_LEN * sizeof(char)));
+  assert(!memcmp(session->rest, restptr, REST_SIZE * sizeof(char)));
 
   free(session->rest);
   free(session);
 }
 
-void test_print_to_file() {
-  // TODO
-}
-
 void test_calc_aes_key() {
-  char *salt = "ßZ;Ô!ê+OÝ)Ú!·¨";
+  char salt[] = {
+      -23, 90, 59, 0, -58, 33, -22, 43, 79, -38, 41, -38, 31, 33, -73, -90, 0,
+  };
+
   char *passphrase = "testus";
+
   uint32_t rounds = 500000;
 
   const unsigned char *aes_key = calc_aes_key(passphrase, rounds, salt);
 
-  const unsigned char chrs[65] = {
-      36,  183, 144, 195, 202, 190, 234, 254, 33,  126, 14,  78,  207,
-      233, 146, 6,   171, 227, 83,  24,  26,  36,  27,  241, 73,  10,
-      187, 27,  42,  68,  108, 152, 23,  230, 132, 163, 144, 201, 36,
-      84,  74,  124, 117, 143, 120, 179, 217, 230, 87,  239, 227, 230,
-      72,  168, 57,  64,  185, 132, 168, 83,  75,  80,  238, 97,  0,
+  const unsigned char chrs[] = {
+      115, 24,   -70,  -35, -59, -57, -112, -58,  -42,  1,   -53, 70,   -4,
+      89,  17,   116,  47,  87,  80,  -57,  109,  -5,   -65, 55,  -118, -84,
+      -93, -118, 53,   17,  127, 127, -47,  -77,  119,  -29, 102, 92,   -60,
+      41,  22,   112,  -51, -92, 5,   -66,  67,   -15,  86,  72,  -23,  90,
+      -50, 108,  -103, -26, 100, 120, -78,  -100, -114, 41,  99,  4,    0,
   };
 
   assert(!strcmp((char *)aes_key, (char *)chrs));
