@@ -26,7 +26,6 @@ ParsedSession *session_parse_alloc(FILE *fp) {
   i = 0;
   res->rest = malloc(0);
   char buf;
-  printf("%s\n", "parsing");
   while (!feof(fp)) {
     res->rest = realloc(res->rest, i + 1);
     res->rest[i] = fgetc(fp);

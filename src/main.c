@@ -27,13 +27,18 @@ int main(int argc, char *argv[]) {
 
   ParsedSession *session = session_parse_alloc(fp);
 
-  write_to_file(argv[1], session->rest, session->rest_size);
+  fclose(fp);
 
-  free(session->rest);
-  session->rest = NULL;
+  fp = fopen(argv[1], "w");
+  for (size_t k = 0; k < session->rest_size; k++) {
+    fputc(session->rest[k], fp);
+  }
 
   fclose(fp);
   fp = NULL;
+
+  free(session->rest);
+  session->rest = NULL;
 
   const unsigned char *aes_key =
       calc_aes_key(argv[2], session->rounds, session->salt);

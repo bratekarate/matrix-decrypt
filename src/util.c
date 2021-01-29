@@ -25,18 +25,18 @@ void print_uint8(const u_int8_t *bytes, const size_t len) {
 }
 
 void print_session(ParsedSession *session) {
-  printf("salt: ");
+  printf("salt:\t\t\t");
   print_bytes_int(session->salt, sizeof(session->salt));
   printf("\n");
-  printf("vector: ");
+  printf("vector:\t\t\t");
   print_bytes_int(session->vector, sizeof(session->vector));
   printf("\n");
-  printf("rounds: %u\n", session->rounds);
-  printf("rest: %zu bytes", session->rest_size);
+  printf("rounds:\t\t\t%u\n", session->rounds);
+  printf("rest:\t\t\t%zu bytes", session->rest_size);
   // printf("rest: ");
   // print_bytes_int(session->rest, session->rest_size);
   printf("\n");
-  printf("hmac_sha256: ");
+  printf("hmac_sha256:\t\t");
   print_bytes_int(session->hmac_sha256, sizeof(session->hmac_sha256));
   printf("\n");
 }
@@ -46,4 +46,6 @@ void write_to_file(char *filepath, char *rest, size_t rest_size) {
   for (size_t k = 0; k < rest_size; k++) {
     fputc(rest[k], fp);
   }
+
+  fclose(fp);
 }
