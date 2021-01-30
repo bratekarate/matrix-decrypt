@@ -9,6 +9,7 @@ void print_bytes(const char *bytes, const size_t len) {
 void print_bytes_int(const char *bytes, const size_t len) {
   for (int i = 0; i < len; i++) {
     printf("%d ", bytes[i]);
+    // printf("%s0x%02x ", bytes[i]<0?"-":"", bytes[i]<0?-(unsigned)bytes[i]:bytes[i]);
   }
 }
 
