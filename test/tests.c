@@ -142,5 +142,22 @@ void test_olm() {
                "  }"
                "]";
 
-  decrypt_olm(json, strlen(json));
+  char *msg = "["
+              " {"
+              "  \"type\": \"m.room.encrypted\","
+              "  \"content\": {"
+              "   \"session_id\": \"1ABCDEFG\","
+              "   \"ciphertext\": "
+              "   \"AwgFEqABUKRnWNtjkgyb4VE683Vz6QhwiMQvqZULFminZm4OhsDC+"
+              "   1BcMF8cS8LQI5cw22e0cFZJKO/rdjnXn+87r1Xz58SIf1dNsWD1IGIPW"
+              "   XKofwcDzkhLw3a809Kf0LZaoQtqXcfCV1L1rSWaJqDadWAhbU"
+              "   AezoQZ0NxFzAdmKvHP863s41qmMD99/gJcY7Oitf1yYBGomXP"
+              "   prubtgN6KVaEjV6YP//kLbJ/JFBtLUXAgVPo3R+MyKDnv/"
+              "   emuqbqZNgrlTqx+A8x80yOZU0NeN0PYtccF5tAzg8QeaKMHJ"
+              "   3ftXkMn3uxcnk8iCQ\""
+              "  }"
+              " }"
+              "]";
+
+  decrypt_olm(json, strlen(json), msg, strlen(msg));
 }
