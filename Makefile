@@ -1,6 +1,6 @@
 CC=tcc
-CFLAGS=-I.
-CLIBS=-lolm -lssl -lcrypto -lresolv
+CFLAGS=-I. -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/cjson
+CLIBS=-lolm -lssl -lcrypto -lresolv -lglib-2.0 -lcjson_utils -lcjson
 NAME=matrix_session_extract
 SRCDIR=src
 TESTDIR=test
@@ -39,5 +39,3 @@ watch:
 		($(MAKE)); \
 		($(MAKE) test); \
 	done
-
-

@@ -27,6 +27,7 @@ void calc_aes_key(const char *passphrase, const size_t rounds, const char *salt,
                   unsigned char *out, size_t out_size);
 int decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key,
             unsigned char *iv, unsigned char *plaintext);
+int decrypt_olm();
 void print_bytes(const char *bytes, const size_t len);
 void print_bytes_int(const char *bytes, const size_t len);
 void print_hex_bytes(const char *bytes, const size_t len);

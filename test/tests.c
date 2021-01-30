@@ -11,16 +11,19 @@
 #define FUNC_ARRAY_SIZE (sizeof(func_array) / sizeof(func_pointer_t))
 
 void test_parse();
-void test_print_to_file();
 void test_calc_aes_key();
+void test_olm();
 
 typedef struct {
   void (*func)(void);
   const char *name;
 } func_pointer_t;
 
-func_pointer_t func_array[] = {FUNC_DEF(test_parse)
-                                   FUNC_DEF(test_calc_aes_key)};
+func_pointer_t func_array[] = {
+    // FUNC_DEF(test_parse)
+    // FUNC_DEF(test_calc_aes_key)
+    FUNC_DEF(test_olm)
+};
 
 int main() {
   for (size_t i = 0; i < FUNC_ARRAY_SIZE; i++) {
@@ -126,4 +129,8 @@ void test_calc_aes_key() {
   };
 
   assert(!strcmp((char *)aes_key, (char *)chrs));
+}
+
+void test_olm() {
+    decrypt_olm();
 }
