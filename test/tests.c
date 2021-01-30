@@ -114,7 +114,8 @@ void test_calc_aes_key() {
       -23, 90, 59, 0, -58, 33, -22, 43, 79, -38, 41, -38, 31, 33, -73, -90, 0,
   };
 
-  const unsigned char *aes_key = calc_aes_key(PASSPHRASE, ROUNDS, salt);
+  unsigned char aes_key[AES_KEY_LEN];
+  calc_aes_key(PASSPHRASE, ROUNDS, salt, aes_key, AES_KEY_LEN);
 
   const unsigned char chrs[] = {
       115, 24,   -70,  -35, -59, -57, -112, -58,  -42,  1,   -53, 70,   -4,

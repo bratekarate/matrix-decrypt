@@ -1,28 +1,58 @@
 #include "matrix_session_extract.h"
+#include <openssl/evp.h>
 
-// Extract AES-256-CTR key with embedded python
-const unsigned char *calc_aes_key(const char *passphrase, const size_t rounds,
-                                  const char *salt) {
-  Py_Initialize();
-  PyObject *moduleMainString = PyUnicode_FromString("__main__");
-  PyObject *moduleMain = PyImport_Import(moduleMainString);
+void calc_aes_key(const char *passphrase, const size_t rounds, const char *salt,
+                  unsigned char *out, size_t out_size) {
 
-  PyRun_SimpleString("import sys\nimport pbkdf2\n"
-                     "from Crypto.Hash import SHA512\n"
-                     "from Crypto.Hash import HMAC\n\n"
-                     "def calc_key(passphrase, iterations, salt):\n"
-                     "    key = pbkdf2.PBKDF2(passphrase, salt, iterations, "
-                     "SHA512, HMAC).read(64)\n"
-                     "    return key\n");
+  PKCS5_PBKDF2_HMAC(passphrase, strlen(passphrase), (const unsigned char *)salt,
+                    strlen(salt), rounds, EVP_sha512(), out_size, out);
+  EVP_aes_256_ctr();
 
-  PyObject *func = PyObject_GetAttrString(moduleMain, "calc_key");
-  PyObject *args =
-      PyTuple_Pack(3, PyUnicode_FromString(passphrase), PyLong_FromLong(rounds),
-                   PyBytes_FromString(salt));
+  out[out_size] = '\0';
+}
 
-  PyObject *result = PyObject_CallObject(func, args);
-  Py_Finalize();
+// TODO: make work
+int decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key,
+            unsigned char *iv, unsigned char *plaintext) {
+  EVP_CIPHER_CTX *ctx;
+  int len;
+  int plaintext_len;
 
-  /*return (const unsigned char *)PyUnicode_AsUTF8(result);*/
-  return (const unsigned char *)PyBytes_AsString(result);
+  /* Create and initialise the context */
+  if (!(ctx = EVP_CIPHER_CTX_new()))
+    return -1;
+
+  /*
+   * Initialise the decryption operation. IMPORTANT - ensure you use a key
+   * and IV size appropriate for your cipher
+   * In this example we are using 256 bit AES (i.e. a 256 bit key). The
+   * IV size for *most* modes is the same as the block size. For AES this
+   * is 128 bits
+   */
+  if (1 != EVP_DecryptInit_ex(ctx, EVP_aes_256_ctr(), NULL, key, iv))
+    return -1;
+
+  /*
+   * Provide the message to be decrypted, and obtain the plaintext output.
+   * EVP_DecryptUpdate can be called multiple times if necessary.
+   */
+  if (1 !=
+      EVP_DecryptUpdate(ctx, plaintext, &len, ciphertext, ciphertext_len)) {
+    fprintf(stderr, "decrypt upd err\n");
+    return -1;
+  }
+  plaintext_len = len;
+
+  /*
+   * Finalise the decryption. Further plaintext bytes may be written at
+   * this stage.
+   */
+  if (1 != EVP_DecryptFinal_ex(ctx, plaintext + len, &len))
+    return -1;
+  plaintext_len += len;
+
+  /* Clean up */
+  EVP_CIPHER_CTX_free(ctx);
+
+  return plaintext_len;
 }

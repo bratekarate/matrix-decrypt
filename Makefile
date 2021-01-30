@@ -1,6 +1,6 @@
 CC=tcc
-CFLAGS=-I. -I/usr/include/python3.9
-CLIBS=-lpython3 -lnettle -lolm -lssl -lcrypto -lresolv
+CFLAGS=-I.
+CLIBS=-lolm -lssl -lcrypto -lresolv
 NAME=matrix_session_extract
 SRCDIR=src
 TESTDIR=test

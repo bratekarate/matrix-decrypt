@@ -1,7 +1,5 @@
 #include "./matrix_session_extract.h"
 
-#define AES_KEY_LEN (64)
-
 int main(int argc, char *argv[]) {
 
   FILE *fp;
@@ -37,25 +35,25 @@ int main(int argc, char *argv[]) {
   fclose(fp);
   fp = NULL;
 
+  unsigned char aes_key[AES_KEY_LEN];
+
+  calc_aes_key(argv[2], session->rounds, session->salt, aes_key, AES_KEY_LEN);
+
+  unsigned char *decr =
+      malloc((session->rest_size + 16) * sizeof(unsigned char));
+  size_t plain_len = decrypt((unsigned char *)session->rest, session->rest_size,
+                             aes_key, (unsigned char *)session->vector, decr);
+
   free(session->rest);
   session->rest = NULL;
 
-  const unsigned char *aes_key =
-      calc_aes_key(argv[2], session->rounds, session->salt);
-
-  // print resulting key and initialization vector
-  for (size_t c = 0; c < AES_KEY_LEN; c++) {
-    printf("%02x", aes_key[c]);
-  }
-  printf(" ");
-
-  for (size_t c = 0; c < VECTOR_LEN; c++) {
-    printf("%02x", (const unsigned char)(session->vector[c]));
-  }
-  printf("\n");
-
   free(session);
   session = NULL;
+
+  printf("%s\n", decr);
+
+  free(decr);
+  decr = NULL;
 
   return EXIT_SUCCESS;
 }
