@@ -6,7 +6,7 @@ SRCDIR=src
 TESTDIR=test
 DEPS=$(SRCDIR)/$(NAME).h
 OUTDIR=out
-OBJ_LIB=parse.o util.o pbkdf2.o
+OBJ_LIB=parse.o util.o pbkdf2.o olm.o
 OBJ_MAIN=$(addprefix $(OUTDIR)/, $(OBJ_LIB) main.o)
 OBJ_TEST=$(addprefix $(OUTDIR)/, $(OBJ_LIB) tests.o)
 

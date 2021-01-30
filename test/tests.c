@@ -22,8 +22,7 @@ typedef struct {
 func_pointer_t func_array[] = {
     // FUNC_DEF(test_parse)
     // FUNC_DEF(test_calc_aes_key)
-    FUNC_DEF(test_olm)
-};
+    FUNC_DEF(test_olm)};
 
 int main() {
   for (size_t i = 0; i < FUNC_ARRAY_SIZE; i++) {
@@ -132,5 +131,16 @@ void test_calc_aes_key() {
 }
 
 void test_olm() {
-    decrypt_olm();
+  char *json = "["
+               "  {"
+               "    \"session_id\": \"1ABCDEFG\","
+               "    \"session_key\": \"1GFEDCBA\""
+               "  },"
+               "  {"
+               "    \"session_id\": \"2ABCDEFG\","
+               "    \"session_key\": \"2GFEDCBA\""
+               "  }"
+               "]";
+
+  decrypt_olm(json, strlen(json));
 }
