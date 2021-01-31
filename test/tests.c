@@ -159,5 +159,15 @@ void test_olm() {
               " }"
               "]";
 
-  decrypt_olm(json, strlen(json), msg, strlen(msg));
+  size_t msg_len = strlen(msg);
+
+  cJSON *msgs_json = cJSON_ParseWithLength(msg, msg_len);
+
+  // printf("%s\n", cJSON_Print(msgs_json));
+
+  size_t msgs_len = cJSON_GetArraySize(msgs_json);
+
+  char **plaintext_msgs = malloc(msgs_len * sizeof(char *));
+  char **plaintext_ptr =
+      decrypt_olm(json, strlen(json), msg, 3, plaintext_msgs);
 }

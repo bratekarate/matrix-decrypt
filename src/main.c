@@ -5,12 +5,13 @@ int main(int argc, char *argv[]) {
   FILE *fp;
 
   switch (argc) {
-  case 3:
+  case 4:
     fp = stdin;
     break;
-  case 4:
-    fp = fopen(argv[3], "r");
-    break;
+  // TODO: fix file argument
+  // case 5:
+  //   fp = fopen(argv[4], "r");
+  //   break;
   default:
     fprintf(stderr,
             "Error: Need at least a passphrase and an output filepath.\n");
@@ -50,7 +51,39 @@ int main(int argc, char *argv[]) {
   free(session);
   session = NULL;
 
-  printf("%s\n", decr);
+  // printf("%s\n", decr);
+  //
+  fp = fopen(argv[3], "r");
+
+  size_t buf_size = 500;
+  char *enc_msgs = malloc(buf_size * sizeof(char));
+
+  size_t content_i = 0;
+  char buf;
+  while ((buf = fgetc(fp)) != EOF) {
+    if ((content_i + 1) * sizeof(char) > buf_size) {
+      buf_size *= 1.5;
+      enc_msgs = realloc(enc_msgs, buf_size * sizeof(char));
+    }
+    enc_msgs[content_i++] = buf;
+  }
+
+  // char *enc_msgs = "[]";
+  size_t msg_len = strlen(enc_msgs);
+
+  cJSON *msgs_json = cJSON_ParseWithLength(enc_msgs, msg_len);
+
+  // printf("%s\n", cJSON_Print(msgs_json));
+
+  size_t msgs_len = cJSON_GetArraySize(msgs_json);
+
+  char **plaintext_msgs = malloc(msgs_len * sizeof(char *));
+  char **plaintext_ptr =
+      decrypt_olm((char *)decr, plain_len, enc_msgs, content_i, plaintext_msgs);
+
+  // while (plaintext_msgs < plaintext_ptr) {
+  //   printf("%s\n", *plaintext_msgs++);
+  // }
 
   free(decr);
   decr = NULL;

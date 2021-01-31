@@ -1,9 +1,10 @@
+#include <assert.h>
+#include <cjson/cJSON.h>
 #include <inttypes.h>
 #include <resolv.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 #define SALT_LEN (17)
 #define VECTOR_LEN (16)
@@ -27,7 +28,9 @@ void calc_aes_key(const char *passphrase, const size_t rounds, const char *salt,
                   unsigned char *out, size_t out_size);
 int decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key,
             unsigned char *iv, unsigned char *plaintext);
-int decrypt_olm(char *session_string, size_t session_len, char *messages_string, size_t messages_len);
+char **decrypt_olm(char *session_string, size_t session_len,
+                   char *messages_string, size_t messages_len,
+                   char **plaintext_msgs);
 void print_bytes(const char *bytes, const size_t len);
 void print_bytes_int(const char *bytes, const size_t len);
 void print_hex_bytes(const char *bytes, const size_t len);
