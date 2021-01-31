@@ -9,9 +9,9 @@ int main(int argc, char *argv[]) {
     fp = stdin;
     break;
   // TODO: fix file argument
-  // case 5:
-  //   fp = fopen(argv[4], "r");
-  //   break;
+  case 5:
+    fp = fopen(argv[4], "r");
+    break;
   default:
     fprintf(stderr,
             "Error: Need at least a passphrase and an output filepath.\n");
@@ -27,6 +27,7 @@ int main(int argc, char *argv[]) {
   ParsedSession *session = session_parse_alloc(fp);
 
   fclose(fp);
+  fp = NULL;
 
   fp = fopen(argv[1], "w");
   for (size_t k = 0; k < session->rest_size; k++) {

@@ -30,8 +30,6 @@ ParsedSession *session_parse_alloc(FILE *fp) {
   unsigned char *decoded = malloc(payload_size);
   int size = b64_pton((const char *)stripped, decoded, payload_size);
 
-  fclose(fp);
-
   unsigned char *dec_pointer = decoded;
   session->format = *dec_pointer++;
 
