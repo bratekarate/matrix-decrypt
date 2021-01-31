@@ -20,8 +20,8 @@ typedef struct {
 } func_pointer_t;
 
 func_pointer_t func_array[] = {
-    // FUNC_DEF(test_parse)
-    // FUNC_DEF(test_calc_aes_key)
+    FUNC_DEF(test_parse)
+    FUNC_DEF(test_calc_aes_key)
     FUNC_DEF(test_olm)};
 
 int main() {
